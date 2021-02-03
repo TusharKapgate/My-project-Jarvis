@@ -1,0 +1,149 @@
+
+import pyttsx3
+import datetime
+import random
+import wikipedia
+import speech_recognition as sr
+import webbrowser
+import os
+engine=pyttsx3.init("sapi5")
+voices=engine.getProperty('voices')
+# print(voices[1].id)
+#femal(Zira) voice is at index 1 and male(David) voice is at index 0
+engine.setProperty('voice',voices[0].id)
+
+def Speak(audio):
+    '''
+    This function is for output of audio
+    It take one argument the string which you want Jarvis to speak
+    :param audio:
+    :return:
+    '''
+    engine.say(audio)
+    engine.runAndWait()
+
+def wishme():
+    Speak("Please tell me your name")
+    name=takeComand()
+    '''
+    This function is used at the start of the Program so that jarvis will wish you at the start
+    :return:
+    '''
+    hour=datetime.datetime.now().hour
+    if hour<12:
+        print(f"Good Morning{name}")
+        Speak(f"Good Morning {name}")
+    elif hour<18:
+        print(f"Good Afternoon {name}")
+        Speak(f"Good Afternoon {name}")
+    else:
+        print(f"Good evening {name}")
+        Speak(f"Good evening {name}")
+    Speak("I am Jarvis how may I help you")
+def takeComand():
+    '''
+    This function is for taking voice inputs from the user
+     using microphone
+     and it return a query in string format
+    '''
+    r=sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Speak.....")
+        r.pause_threshold=1 #second of non speaking audio before is supposed complete
+        audio=r.listen(source)
+    try :
+        print("Recognising.....")
+        query=r.recognize_google(audio,language='en-in')
+        print(f"User said \"{query}\"\n")
+    except Exception as e:
+        print("Please repeat it")
+        return takeComand()
+    return query
+
+if __name__ == '__main__':
+    # wishme()
+    while True:
+        query=takeComand().lower()
+        # Speak("Tushar")
+        if 'wikipedia' in query:
+            query=query.replace('Wikipedia','')
+            Speak("Searching on Wikipedia....")
+            try:
+                result=wikipedia.summary(query,sentences=5)
+            except Exception as e:
+                Speak("Nothing similar found on Wikipedia")
+            else:
+                Speak("According to Wikipedia")
+                Speak(result)
+        elif "open youtube" in query:
+            webbrowser.open("YouTube.com")
+        elif "open google" in query:
+            webbrowser.open("google.com")
+        elif "open gfg" in query:
+            webbrowser.open("gfg.com")
+        elif "open hackerrank" in query:
+            webbrowser.open("hackerrank.com")
+
+        elif "audio song" in query:
+            music_dir="E:\\Music\\Ringtones"
+            songs=os.listdir(music_dir) #This will return list of songs in selected directory
+            print(songs)
+            os.startfile(os.path.join(music_dir,songs[0])) #this will play music from starting
+        elif "time" in query:
+            '''
+            This Function will Speak current time in 24hr format
+            '''
+            time=datetime.datetime.now().hour
+            Speak(time)
+            # make one for date
+        elif "date" in query:
+            x=datetime.datetime.now().date()
+            Speak(x)
+        elif 'day' in query:
+            x=datetime.datetime.now().day
+            Speak(x)
+        elif 'code' in query:
+            '''
+            This function will open pycharm to do coding
+            '''
+            os.startfile("C:\\Program Files\\JetBrains\\PyCharm Community Edition 2019.2.4\\bin")
+        elif "video song" in query:
+            '''
+            This function will play videos Randomly in folder v
+            '''
+            video_dir="E:\\VIDEOS"
+            video=os.listdir(video_dir)
+            # Speak(video)
+            os.startfile(os.path.join(video_dir,video[random.randint(0,len(video_dir)-1)]))
+        elif "calc" in query:
+            '''
+            This function is used to Calculate 
+            fist it take operator as input and then numbers seoarated by and on which we have to perform operation'''
+            Speak("U want to add, subtract ,multiply or divide")
+            x=takeComand()
+            Speak("Speaks number you want to use separeted by  word and")
+            z=takeComand()
+            print(z)
+            z=z.split("and")
+            print(z)
+            try:
+                t=int(z[0])
+                j=int(z[1])
+            except Exception as e:
+                Speak("Your didnt said integers or you are not clearly Audiable")
+            else:
+                if 'ad' in x:
+                    Speak(str(t+j))
+                elif 'sub' in x:
+                    Speak(t-j)
+                elif 'divide' in x:
+                    Speak(t/j)
+                elif 'mul' in x:
+                    Speak(t*j)
+                else:
+                    Speak("we didnt recognize operator you said")
+        elif "quit" in query:
+            Speak(f"Thanks for using our code We are exitng now")
+            break
+        else:
+            Speak("Your Command is not in our program or we didnt recognise it correctly so please try again")
